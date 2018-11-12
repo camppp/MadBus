@@ -1,10 +1,11 @@
 # MadBus
-
+lyuxuan.com/test.php
 real-time bus tracker
 The most direct way to see real-time bus locations and their stops with location-based information 
 
 *********IMPORTANT**********
 Before trying our project,**PLEASE** turn on an extension (i.e. Allow-Control-Allow-Origin)on Chrome to solve cross-origin resources share problem.
+Site: lyuxuan.com/test.php
 *********IMPORTANT**********
 
 #Inspiration
@@ -17,6 +18,7 @@ According to our own experiences with Google Map when searching for bus lines, w
     The buses are moving on real-time with positions updated around every 30s.
     It can show all stations of the chosen bus line upon request.
     It can highlight all the buses with chosen route number upon request.
+    lyuxuan.com/test.php
 
 # How we built it
 
@@ -60,4 +62,4 @@ Created by
 Yuxuan Liu, 
 York Li, 
 Yao Yao, 
-kejiaf, 
+kejiaf
