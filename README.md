@@ -57,7 +57,7 @@ We learnt how to use Javascript, php, Here API and raw data from other sources t
 MadHacks 2018
 Created by
 #
-Yuxuan Liu
-York Li
-Yao Yao
-kejiaf
+Yuxuan Liu, 
+York Li, 
+Yao Yao, 
+kejiaf, 
