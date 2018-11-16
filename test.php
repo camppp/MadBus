@@ -64,243 +64,275 @@
                </div>
                <div id="map" style="width: 100%; height: 400px; background: grey" />
                   <script  type="text/javascript" charset="UTF-8" >
-                    var getJSON = function(url, callback) {
-                        var xhr = new XMLHttpRequest();
-                        xhr.open('GET', url, true);
-                        xhr.responseType = 'json';
-                        xhr.onload = function() {                      
-                            var status = xhr.status;                             
-							if (status == 200) {
-                                callback(null, xhr.response);
-                            } else {
-                                callback(status);
-                            }
-                        };
-						xhr.send();
-                    };        
-                    function moveMapToMadison(map){
-						map.setCenter({lat:43.0731, lng:-89.4012});
-						map.setZoom(14);
-                    }
-                    var platform = new H.service.Platform({
-                       app_id: 'PDJFmvyexESSMzktjZle',
-                       app_code: 'TTRVK2Ip52AywX5o6bcn8w',
-                       useHTTPS: true
-                    });
-                    var pixelRatio = window.devicePixelRatio || 1;
-                    var defaultLayers = platform.createDefaultLayers({
-                       tileSize: pixelRatio === 1 ? 256 : 512,
-                       ppi: pixelRatio === 1 ? undefined : 320
-                    });
+                     var getJSON = function (url, callback) {
+                     	var xhr = new XMLHttpRequest();
+                     	xhr.open('GET', url, true);
+                     	xhr.responseType = 'json';
+                     	xhr.onload = function () {
+                     		var status = xhr.status;
+                     		if (status == 200) {
+                     			callback(null, xhr.response);
+                     		} else {
+                     			callback(status);
+                     		}
+                     	};
+                     	xhr.send();
+                     };
                      
-                    var map = new H.Map(document.getElementById('map'),
-                    defaultLayers.normal.map, {pixelRatio: pixelRatio});
+                     function moveMapToMadison(map) {
+                     	map.setCenter({
+                     		lat: 43.0731,
+                     		lng: -89.4012
+                     	});
+                     	map.setZoom(14);
+                     }
+                     var platform = new H.service.Platform({
+                     	app_id: 'PDJFmvyexESSMzktjZle',
+                     	app_code: 'TTRVK2Ip52AywX5o6bcn8w',
+                     	useHTTPS: true
+                     });
+                     var pixelRatio = window.devicePixelRatio || 1;
+                     var defaultLayers = platform.createDefaultLayers({
+                     	tileSize: pixelRatio === 1 ? 256 : 512,
+                     	ppi: pixelRatio === 1 ? undefined : 320
+                     });
                      
-                    var markerList = [];
-                    var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+                     var map = new H.Map(document.getElementById('map'),
+                     	defaultLayers.normal.map, {
+                     		pixelRatio: pixelRatio
+                     	});
                      
-                    var ui = H.ui.UI.createDefault(map, defaultLayers);
-                    moveMapToMadison(map);
+                     var markerList = [];
+                     var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
                      
-                    var markerList = [];
-                    var markerBusNum = [];
-                    var length = 0;
-                    var x = 0;
-                    var y = 0;
-                    function getLocation() {
-                        if (navigator.geolocation) {
-                            navigator.geolocation.getCurrentPosition(showPosition);
-                        } 
-						else {
-                           console.log("fuck");
-                        }
-                    }
-                    function showPosition(position) {
-                        x = position.coords.latitude;
-                        y = position.coords.longitude;
-                        console.log(x);
-                        console.log(y);
-                    }
-                    getLocation();
-                    var routes =[1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,
-                    17,18,19,20,21,22,25,26,27,28,29,30,31,32,33,34,35,
-                    36,37,38,39,40,44,47,48,49,50,51,52,55,56,57,58,59,
-                    63,67,68,70,71,72,73,75,78,80,81,82,84];
-                    var busChosen = '<?php 
-                        echo $_POST['route'];
-                        ?>';
-                    function update(){
-                    getJSON('http://transitdata.cityofmadison.com/Vehicle/VehiclePositions.json',  function(err, data) {    
-                    if (err != null) {
-                        console.error(err);
-                    } 
-                    else if(markerList.length == 0)
-					{
-                        for(var i = 0; i < data.entity.length;i++){
-                     		
-                     		var lati = data.entity[i].vehicle.position.latitude;
-                     		var lngi = data.entity[i].vehicle.position.longitude;
-                     		
-                     		var routesIndex = parseInt(data.entity[i].vehicle.trip.route_id)-8052;
-                     		var route = routes[routesIndex];
-                     		
-                     		var svgMarkup = '<svg  width="24" height="24" xmlns="http://www.w3.org/2000/svg">' +
-                     		'<rect stroke="black" fill="${FILL}" x="1" y="1" width="22" height="22" />' +
-                     		'<text x="12" y="18" font-size="12pt" font-family="Arial" font-weight="bold" ' +
-                     		'text-anchor="middle" fill="${STROKE}" >'+route+'</text></svg>';
-                     		
-                     		var busIcon = new H.map.Icon(
-                     		svgMarkup.replace('${FILL}', 'white').replace('${STROKE}', 'red')),
-                     		busMarker = new H.map.Marker({lat: lati, lng: lngi },
-                     		{icon: busIcon});		
-                     		
-                     		markerList.push(busMarker);
-                         	markerBusNum.push(route);
-							length = markerBusNum.length;
+                     var ui = H.ui.UI.createDefault(map, defaultLayers);
+                     moveMapToMadison(map);
                      
-                     		map.addObject(busMarker);
-                     		currPos = new H.map.Marker({lat: x, lng: y });
-                     		map.addObject(currPos);
-                            var text = `Latitude: ${data.entity[i].vehicle.position.latitude}
-                     		Id: ${data.entity[i].id}
-                     		Alert: ${data.entity[i].alert}`
-						}
-                    } 
-                    else
-                    {
-                     	for(var i = 0; i < markerList.length;i++){
-                     		markerList[i].setPosition({lat: data.entity[i].vehicle.position.latitude, lng: data.entity[i].vehicle.position.longitude});
+                     var markerList = [];
+                     var markerBusNum = [];
+                     var length = 0;
+                     var x = 0;
+                     var y = 0;
+                     
+                     function getLocation() {
+                     	if (navigator.geolocation) {
+                     		navigator.geolocation.getCurrentPosition(showPosition);
+                     	} else {
+                     		console.log("fuck");
                      	}
-                    }
-                    });
-					var svgNewMarkup = '<svg  width="24" height="24" xmlns="http://www.w3.org/2000/svg">' +
-					'<rect stroke="black" fill="${FILL}" x="1" y="1" width="35" height="35" />' +
-					'<text x="12" y="18" font-size="12pt" font-family="Arial" font-weight="bold" ' +
-					'text-anchor="middle" fill="${STROKE}" >'+busChosen+'</text></svg>';
+                     }
                      
-                    var busNewIcon = new H.map.Icon(svgNewMarkup.replace('${FILL}', 'blue').replace('${STROKE}', 'red'));
-                    for (var element = 0; element < markerBusNum.length; element++) {
-                        if (markerBusNum[element] == busChosen) {
-                            markerList[element].setIcon(busNewIcon);
-                            markerList[element].setZIndex(5);
-                        }
-                    }
-                } 
-                     var t = setInterval(update,1000);
+                     function showPosition(position) {
+                     	x = position.coords.latitude;
+                     	y = position.coords.longitude;
+                     	console.log(x);
+                     	console.log(y);
+                     }
+                     getLocation();
+                     var routes = [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16,
+                     	17, 18, 19, 20, 21, 22, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
+                     	36, 37, 38, 39, 40, 44, 47, 48, 49, 50, 51, 52, 55, 56, 57, 58, 59,
+                     	63, 67, 68, 70, 71, 72, 73, 75, 78, 80, 81, 82, 84
+                     ];
+                     var busChosen = "<?php 
+                        if (isset($_POST['route']))
+                        {
+                        echo $_POST["route"];
+                        }  ?> ";
                      
-                     var received  = '<?php 
+                     var sf = '<?php
+                        $url = "http://transitdata.cityofmadison.com/Vehicle/VehiclePositions.json?callback=?";
+                        $ch = curl_init();
+                        curl_setopt($ch, CURLOPT_URL, $url);
+                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                        $result = curl_exec ($ch);
+                        curl_close ($ch);
+                        echo $result;?>';
+                     console.log(sf);
+                     function update() {
+                     	getJSON('http://transitdata.cityofmadison.com/Vehicle/VehiclePositions.json', function (err, data) {
+                     		if (err != null) {
+                     			console.error(err);
+                     		} else if (markerList.length == 0) {
+                     			for (var i = 0; i < data.entity.length; i++) {
+                     
+                     				var lati = d.entity[i].vehicle.position.latitude;
+                     				var lngi = data.entity[i].vehicle.position.longitude;
+                     
+                     				var routesIndex = parseInt(data.entity[i].vehicle.trip.route_id) - 8052;
+                     				var route = routes[routesIndex];
+                     
+                     				var svgMarkup = '<svg  width="24" height="24" xmlns="http://www.w3.org/2000/svg">' +
+                     					'<rect stroke="black" fill="${FILL}" x="1" y="1" width="22" height="22" />' +
+                     					'<text x="12" y="18" font-size="12pt" font-family="Arial" font-weight="bold" ' +
+                     					'text-anchor="middle" fill="${STROKE}" >' + route + '</text></svg>';
+                     
+                     				var busIcon = new H.map.Icon(
+                     						svgMarkup.replace('${FILL}', 'white').replace('${STROKE}', 'red')),
+                     					busMarker = new H.map.Marker({
+                     						lat: lati,
+                     						lng: lngi
+                     					}, {
+                     						icon: busIcon
+                     					});
+                     
+                     				markerList.push(busMarker);
+                     				markerBusNum.push(route);
+                     				length = markerBusNum.length;
+                     
+                     				map.addObject(busMarker);
+                     				currPos = new H.map.Marker({
+                     					lat: x,
+                     					lng: y
+                     				});
+                     				map.addObject(currPos);
+                     				var text = 'Latitude: ${data.entity[i].vehicle.position.latitude}Id: ${data.entity[i].id}Alert: ${data.entity[i].alert}';
+                     			}
+                     		} else {
+                     			for (var i = 0; i < markerList.length; i++) {
+                     				markerList[i].setPosition({
+                     					lat: data.entity[i].vehicle.position.latitude,
+                     					lng: data.entity[i].vehicle.position.longitude
+                     				});
+                     			}
+                     		}
+                     	});
+                     	var svgNewMarkup = '<svg  width="24" height="24" xmlns="http://www.w3.org/2000/svg">' +
+                     		'<rect stroke="black" fill="${FILL}" x="1" y="1" width="35" height="35" />' +
+                     		'<text x="12" y="18" font-size="12pt" font-family="Arial" font-weight="bold" ' +
+                     		'text-anchor="middle" fill="${STROKE}" >' + busChosen + '</text></svg>';
+                     
+                     	var busNewIcon = new H.map.Icon(svgNewMarkup.replace('${FILL}', 'blue').replace('${STROKE}', 'red'));
+                     	for (var element = 0; element < markerBusNum.length; element++) {
+                     		if (markerBusNum[element] == busChosen) {
+                     			markerList[element].setIcon(busNewIcon);
+                     			markerList[element].setZIndex(5);
+                     		}
+                     	}
+                     }
+                     var t = setInterval(update, 1000);
+                     var received = '<?php 
                         $result = "";
-                        $route = $_POST['route'];
+                        if (isset($_POST['route']))
+                        {
+                        $route = $_POST["route"];
+                        }
                         $problem = FALSE;
-                        if(empty($route)){
-                        $problem = True;
+                        if (empty($route)) {
+                        	$problem = True;
                         }
-                        if($problem){
-                           echo "Invalid Arguments";
-                        }
-                        else {
-                        $file = fopen("ss.csv","r");
-                        $line = "";
-                        while(! feof($file))
-                         {
-                         $line = fgetcsv($file);
-                         if(strpos($line[19], ',') !== false){
-                         	$pieces = explode(",", $line[19]);
-                         	for ($x = 0; $x < count($pieces); $x++) {
-                         		if($pieces[$x] == $route){
-                         			$result = $result . $line[7] . "*" . $line[8] . "?";
-                         		}
-                        	 }
-                         }
-                         else{
-                         	if($line[19] == $route){
-                         		$result = $result . $line[7] . "*" . $line[8] . "?";
+                        if ($problem) {
+                        	echo "Invalid Arguments";
+                        } else {
+                        	$file = fopen("ss.csv", "r");
+                        	$line = "";
+                        	while (!feof($file)) {
+                        		$line = fgetcsv($file);
+                        		if (strpos($line[19], ',') !== false) {
+                        			$pieces = explode(",", $line[19]);
+                        			for ($x = 0; $x < count($pieces); $x++) {
+                        				if ($pieces[$x] == $route) {
+                        					$result = $result.$line[7].
+                        					"*".$line[8].
+                        					"?";
+                        				}
+                        			}
+                        		} else {
+                        			if ($line[19] == $route) {
+                        				$result = $result.$line[7].
+                        				"*".$line[8].
+                        				"?";
+                        			}
+                        		}
                         	}
-                         }
-                        }
-                        fclose($file);
-                        echo $result;
-                        }
-                        ?>';
+                        	fclose($file);
+                        	echo $result;
+                        }?> ';
                      console.log(received);
                      var stops = received.split("?");
                      var points = [];
-                     for(var i = 0; i< stops.length-1; i++){
+                     for (var i = 0; i < stops.length - 1; i++) {
                      	var lati = parseFloat(stops[i].split("*")[0]);
                      	var lngi = parseFloat(stops[i].split("*")[1]);
                      	console.log(lati + " " + lngi);
-                     	var stopMarker = new H.map.Marker({lat:lati, lng: lngi});
+                     	var stopMarker = new H.map.Marker({
+                     		lat: lati,
+                     		lng: lngi
+                     	});
                      	map.addObject(stopMarker);
-                     	
-                     	points.push(stops[i].split("*")[0]+','+stops[i].split("*")[1]);
+                     
+                     	points.push(stops[i].split("*")[0] + ',' + stops[i].split("*")[1]);
                      }
                      
                      
-                     function drawLine(point0,point1){
-                     var routingParameters = {
-                       'mode': 'fastest;car',
-                       'waypoint0': 'geo!'+point0,
-                       'waypoint1': 'geo!'+point1,
-                       'representation': 'display'
-                     };
+                     function drawLine(point0, point1) {
+                     	var routingParameters = {
+                     		'mode': 'fastest;car',
+                     		'waypoint0': 'geo!' + point0,
+                     		'waypoint1': 'geo!' + point1,
+                     		'representation': 'display'
+                     	};
                      
-                     var onResult = function(result) {
-                       var route,
-                         routeShape,
-                         startPoint,
-                         endPoint,
-                         linestring;
-                       if(result.response.route) {
-                       route = result.response.route[0];
-                       routeShape = route.shape;
+                     	var onResult = function (result) {
+                     		var route,
+                     			routeShape,
+                     			startPoint,
+                     			endPoint,
+                     			linestring;
+                     		if (result.response.route) {
+                     			route = result.response.route[0];
+                     			routeShape = route.shape;
                      
-                       linestring = new H.geo.LineString();
+                     			linestring = new H.geo.LineString();
                      
-                       routeShape.forEach(function(point) {
-                         var parts = point.split(',');
-                         linestring.pushLatLngAlt(parts[0], parts[1]);
-                       });
+                     			routeShape.forEach(function (point) {
+                     				var parts = point.split(',');
+                     				linestring.pushLatLngAlt(parts[0], parts[1]);
+                     			});
                      
-                       startPoint = route.waypoint[0].mappedPosition;
-                       endPoint = route.waypoint[1].mappedPosition;
+                     			startPoint = route.waypoint[0].mappedPosition;
+                     			endPoint = route.waypoint[1].mappedPosition;
                      
-                       var routeLine = new H.map.Polyline(linestring, {
-                         style: { strokeColor: 'blue', lineWidth: 10 }
-                       });
+                     			var routeLine = new H.map.Polyline(linestring, {
+                     				style: {
+                     					strokeColor: 'blue',
+                     					lineWidth: 10
+                     				}
+                     			});
                      
-                       var startMarker = new H.map.Marker({
-                         lat: startPoint.latitude,
-                         lng: startPoint.longitude
-                       });
+                     			var startMarker = new H.map.Marker({
+                     				lat: startPoint.latitude,
+                     				lng: startPoint.longitude
+                     			});
                      
-                       var endMarker = new H.map.Marker({
-                         lat: endPoint.latitude,
-                         lng: endPoint.longitude
-                       });
+                     			var endMarker = new H.map.Marker({
+                     				lat: endPoint.latitude,
+                     				lng: endPoint.longitude
+                     			});
                      
-                       map.addObjects([routeLine, startMarker, endMarker]);
-                       map.addObjects([routeLine, startMarker, endMarker]);
+                     			map.addObjects([routeLine, startMarker, endMarker]);
+                     			map.addObjects([routeLine, startMarker, endMarker]);
                      
-                       map.setViewBounds(routeLine.getBounds());
-                       }
-                     };
+                     			map.setViewBounds(routeLine.getBounds());
+                     		}
+                     	};
                      
-                     var router = platform.getRoutingService();
+                     	var router = platform.getRoutingService();
                      
-                     router.calculateRoute(routingParameters, onResult,
-                       function(error) {
-                         alert(error.message);
-                       });
+                     	router.calculateRoute(routingParameters, onResult,
+                     		function (error) {
+                     			alert(error.message);
+                     		});
                      
                      }
-                     console.log(points.length);
-                     /*
-                     for(var i =0; i<points.length-1; i++){
-                      console.log("fuckkkk");
-                     drawLine(points[i],points[i+1]);
-                     }
-                     */
-                     
+                                          /*
+                                          for(var i =0; i<points.length-1; i++){
+                                           console.log("fuckkkk");
+                                          drawLine(points[i],points[i+1]);
+                                          }
+                                          */
+                                          
+                                       
                   </script>
                </div>
             </div>
@@ -334,19 +366,19 @@
                         </div>
                         <div class="row">
                            <div class="col-md-12">
-								<form>
-									<input class="btn btn-default" onclick="Contact()" value="SUBMIT" id = "contact">
-								</form>
-				</div>
-			</div>				            			
+                     <form>
+                     <input class="btn btn-default" onclick="Contact()" value="SUBMIT" id = "contact">
+                     </form>
+                     </div>
+                     </div>				            			
                      </form>	
-						<script>
+                     <script>
                         function sleep(milliseconds) {
                         	var start = new Date().getTime();
                         	for (var i = 0; i < 1e7; i++) {
                         		if ((new Date().getTime() - start) > milliseconds){
-									break;
-								}
+                        break;
+                        }
                         	}
                         }
                         function Contact() {
@@ -357,11 +389,11 @@
                         	if (name == '' || email == '' || message == '') {
                         	alert("Please Fill All Fields");
                         	} 
-							else {
-								window.location.href = "Contact.php?w1=\"" + name + "\"&w2=\"" + email + "\"&w3=\"" + message + "\"";
+                        else {
+                        window.location.href = "Contact.php?w1=\"" + name + "\"&w2=\"" + email + "\"&w3=\"" + message + "\"";
                         	}
                         }
-						</script>            			
+                     </script>            			
                   </div>
                </div>
                <div class="col-md-6 col-sm-6 wow fadeInLeft">
@@ -439,3 +471,4 @@
       </script>
    </body>
 </html>
+
