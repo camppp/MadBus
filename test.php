@@ -64,21 +64,6 @@
                </div>
                <div id="map" style="width: 100%; height: 400px; background: grey" />
                   <script  type="text/javascript" charset="UTF-8" >
-                     var getJSON = function (url, callback) {
-                     	var xhr = new XMLHttpRequest();
-                     	xhr.open('GET', url, true);
-                     	xhr.responseType = 'json';
-                     	xhr.onload = function () {
-                     		var status = xhr.status;
-                     		if (status == 200) {
-                     			callback(null, xhr.response);
-                     		} else {
-                     			callback(status);
-                     		}
-                     	};
-                     	xhr.send();
-                     };
-                     
                      function moveMapToMadison(map) {
                      	map.setCenter({
                      		lat: 43.0731,
@@ -113,53 +98,61 @@
                      var length = 0;
                      var x = 0;
                      var y = 0;
-                     
-                     function getLocation() {
-                     	if (navigator.geolocation) {
-                     		navigator.geolocation.getCurrentPosition(showPosition);
-                     	} else {
-                     		console.log("fuck");
-                     	}
-                     }
-                     
+                     var sf;
                      function showPosition(position) {
                      	x = position.coords.latitude;
                      	y = position.coords.longitude;
                      	console.log(x);
                      	console.log(y);
                      }
-                     getLocation();
+                     var ss = "";
                      var routes = [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16,
                      	17, 18, 19, 20, 21, 22, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
                      	36, 37, 38, 39, 40, 44, 47, 48, 49, 50, 51, 52, 55, 56, 57, 58, 59,
                      	63, 67, 68, 70, 71, 72, 73, 75, 78, 80, 81, 82, 84
                      ];
+                     
                      var busChosen = "<?php 
                         if (isset($_POST['route']))
                         {
                         echo $_POST["route"];
-                        }  ?> ";
-                     
-                     var sf = '<?php
-                        $url = "http://transitdata.cityofmadison.com/Vehicle/VehiclePositions.json?callback=?";
-                        $ch = curl_init();
-                        curl_setopt($ch, CURLOPT_URL, $url);
-                        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                        $result = curl_exec ($ch);
-                        curl_close ($ch);
-                        echo $result;?>';
-                     console.log(sf);
+                        }?> ";
+                      function getPosition() {
+                       $.ajax({
+                    	url: "proxy.php",
+                   	 type: "GET",
+                   	 success:function(e){
+                   	     return e;
+                   	 }
+                   	 });
+ 		      }      
+ 		      function foo(callback) {
+ 		        $.ajax({
+                    	url: "proxy.php",
+                   	 type: "GET",
+                   	 success:function(e){
+                   	     myCallback(e);
+                   	 }
+                   	 ,
+                   	 error:function(request, status, error) {
+   			 }
+                   	 });
+			}
+ 		      function myCallback(result) {
+    			 ss = result;
+		      }
+
+                     var var1_obj;
                      function update() {
-                     	getJSON('http://transitdata.cityofmadison.com/Vehicle/VehiclePositions.json', function (err, data) {
-                     		if (err != null) {
-                     			console.error(err);
-                     		} else if (markerList.length == 0) {
-                     			for (var i = 0; i < data.entity.length; i++) {
-                     
-                     				var lati = d.entity[i].vehicle.position.latitude;
-                     				var lngi = data.entity[i].vehicle.position.longitude;
-                     
-                     				var routesIndex = parseInt(data.entity[i].vehicle.trip.route_id) - 8052;
+                    
+                     	foo(myCallback); 
+                     	if(ss.length != 0){
+                     	var1_obj = JSON.parse(ss);     	
+                     	if (markerList.length == 0) {
+                     			for (var i = 0; i < var1_obj.entity.length; i++) {
+                     				var lati = var1_obj.entity[i].vehicle.position.latitude;
+                     				var lngi = var1_obj.entity[i].vehicle.position.longitude;
+                     				var routesIndex = parseInt(var1_obj.entity[i].vehicle.trip.route_id) - 8052;
                      				var route = routes[routesIndex];
                      
                      				var svgMarkup = '<svg  width="24" height="24" xmlns="http://www.w3.org/2000/svg">' +
@@ -186,17 +179,16 @@
                      					lng: y
                      				});
                      				map.addObject(currPos);
-                     				var text = 'Latitude: ${data.entity[i].vehicle.position.latitude}Id: ${data.entity[i].id}Alert: ${data.entity[i].alert}';
+                     				var text = 'Latitude: ${var1_obj.entity[i].vehicle.position.latitude}Id: ${var1_obj.entity[i].id}Alert: ${var1_obj.entity[i].alert}';
                      			}
                      		} else {
                      			for (var i = 0; i < markerList.length; i++) {
                      				markerList[i].setPosition({
-                     					lat: data.entity[i].vehicle.position.latitude,
-                     					lng: data.entity[i].vehicle.position.longitude
+                     					lat: var1_obj.entity[i].vehicle.position.latitude,
+                     					lng: var1_obj.entity[i].vehicle.position.longitude
                      				});
                      			}
                      		}
-                     	});
                      	var svgNewMarkup = '<svg  width="24" height="24" xmlns="http://www.w3.org/2000/svg">' +
                      		'<rect stroke="black" fill="${FILL}" x="1" y="1" width="35" height="35" />' +
                      		'<text x="12" y="18" font-size="12pt" font-family="Arial" font-weight="bold" ' +
@@ -208,6 +200,7 @@
                      			markerList[element].setIcon(busNewIcon);
                      			markerList[element].setZIndex(5);
                      		}
+                     	}
                      	}
                      }
                      var t = setInterval(update, 1000);
