@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
    <head>
@@ -10,60 +12,37 @@
       <script type="text/javascript" src="https://js.api.here.com/v3/3.0/mapsjs-mapevents.js"></script>
       <title>MadBus - real time bus checker</title>
       <script src="jquery.js"></script>
-      <!-- Mobile Specific Metas
-         ================================================== -->
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <!-- CSS
-         ================================================== -->
-      <!-- Bootstrap -->
       <link href="assets/css/bootstrap.min.css" rel="stylesheet">
       <link rel="stylesheet" href="css/font-awesome.min.css">
-      <link rel="stylesheet" href="css/animate.css">
-      <link rel="stylesheet" href="css/prettyPhoto.css">
       <link rel="stylesheet" href="css/style.css">
    </head>
    <body data-spy="scroll" data-target=".main-nav">
-      <section id="section-banner">
-         <div class="pattern-overlay"></div>
-         <div class="container">
-            <div class="row">
-               <div class="banner-content wow fadeInRight">
-                  <h2 class="title"> 
-                     <span><font size="200">MadBus!</font></span>	
-                  </h2>
-                  <a href="#section-contact" class="btn btn-default">CONTACT US</a>
-               </div>
-            </div>
+      <div>
+         <a href= "#section-story" class = "navbar-brand" style><i>Don't forget to thank the bus driver </i>😁</a>
+         <div class="collapse navbar-collapse navigation" id="bs-example-navbar-collapse-1" role="navigation">
+            <ul class="nav navbar-nav navbar-right">
+               <li><a href="https://github.com/camppp/MadBus">Contact Us</a></li>
+            </ul>
          </div>
-      </section>
-      <!-- section menu start -->
-      <section class="section-menu">
-         <div class="navbar navbar-default main-nav" role="navigation">
-         <div>
-            <a href="#section-story" class="navbar-brand" style>Home</a>
-            <!-- main nav  -->
-            <div class="collapse navbar-collapse navigation" id="bs-example-navbar-collapse-1" role="navigation">
-               <ul class="nav navbar-nav navbar-right">
-                  <li><a href="#section-contact" class="heading-title"><i>Don't forget to thank the bus driver </i>😁</a></li>
-               </ul>
-            </div>
-            <!-- /.navbar-collapse -->
-         </div>
+      </div>
       </section>
       <!-- section overview end -->
       <!-- section profile start -->
+      </br>
       <section id="section-story" class="section-padding">
          <div class="container">
          <div class="row">
             <div class="col-md-12 col-sm-12 pull-left" style="text-align: center; margin-top:5px">
                <div>
                   <form action="" method="post">
-                     Find Route: <input name="route" type="text" />
-                     <input name="submit" type="submit" value="Submit"/>
+                     Find Route: <input name="route" type="text" style = "color: black;"/>
+                     <input name="submit" type="submit" value="Submit" style = "color: black;"/>
                   </form>
+                  </br>
                </div>
                <div id="map" style="width: 100%; height: 400px; background: grey" />
-                  <script  type="text/javascript" charset="UTF-8" >
+                  <script  type="text/javascript" charset="UTF-8" >            
                      function moveMapToMadison(map) {
                      	map.setCenter({
                      		lat: 43.0731,
@@ -119,32 +98,38 @@
                         }?> ";
                       function getPosition() {
                        $.ajax({
-                    	url: "proxy.php",
-                   	 type: "GET",
-                   	 success:function(e){
-                   	     return e;
-                   	 }
-                   	 });
- 		      }      
- 		      function foo(callback) {
- 		        $.ajax({
-                    	url: "proxy.php",
-                   	 type: "GET",
-                   	 success:function(e){
-                   	     myCallback(e);
-                   	 }
-                   	 ,
-                   	 error:function(request, status, error) {
-   			 }
-                   	 });
-			}
- 		      function myCallback(result) {
-    			 ss = result;
-		      }
-
+                     url: "proxy.php",
+                     type: "GET",
+                     success:function(e){
+                         console.log(e);
+                         return e;
+                     }
+                     ,
+                     error:function(request, status, error) {
+                         console.log(error);
+                     }
+                     });
+                     }      
+                     function foo(callback) {
+                     $.ajax({
+                     url: "proxy.php",
+                     type: "GET",
+                     success:function(e){
+                         myCallback(e);
+                         
+                     }
+                     ,
+                     error:function(request, status, error) {
+                     }
+                     });
+                     }
+                     function myCallback(result) {
+                     ss = result;
+                     }
+                     
                      var var1_obj;
                      function update() {
-                    
+                     	
                      	foo(myCallback); 
                      	if(ss.length != 0){
                      	var1_obj = JSON.parse(ss);     	
@@ -152,9 +137,34 @@
                      			for (var i = 0; i < var1_obj.entity.length; i++) {
                      				var lati = var1_obj.entity[i].vehicle.position.latitude;
                      				var lngi = var1_obj.entity[i].vehicle.position.longitude;
-                     				var routesIndex = parseInt(var1_obj.entity[i].vehicle.trip.route_id) - 8052;
-                     				var route = routes[routesIndex];
-                     
+                     				var routesIndex = parseInt(var1_obj.entity[i].vehicle.trip.route_id);
+                     				var lines = '<?php                         
+                        $result = "";
+                        	$file = fopen("route.csv", "r");
+                        $line = "";
+                        $count = 0;
+                        while (!feof($file)) {
+                            		$line = fgetcsv($file);
+                            		if($count!=0){
+                               $route = $line[1];
+                        $label = $line[2];
+                             $result = $result . "*" . $route ."," . $label;
+                             }
+                             $count = $count+1;
+                        }
+                        	fclose($file);
+                        echo $result;
+                        ?>';
+                     				var split_routes = lines.split("*");
+                     				for(var i = 1; i < split_routes.length; i++){
+                     					split_routes[i] = split_routes[i].split(",");
+                     				}
+                     				var route = 0;
+                     				for(var i = 1; i < split_routes.length; i++){
+                     					if(routesIndex == split_routes[i][0]){
+                     					route = split_routes[i][1];
+                     					}
+                     				}
                      				var svgMarkup = '<svg  width="24" height="24" xmlns="http://www.w3.org/2000/svg">' +
                      					'<rect stroke="black" fill="${FILL}" x="1" y="1" width="22" height="22" />' +
                      					'<text x="12" y="18" font-size="12pt" font-family="Arial" font-weight="bold" ' +
@@ -172,7 +182,7 @@
                      				markerList.push(busMarker);
                      				markerBusNum.push(route);
                      				length = markerBusNum.length;
-                     
+                     				
                      				map.addObject(busMarker);
                      				currPos = new H.map.Marker({
                      					lat: x,
@@ -184,8 +194,7 @@
                      		} else {
                      			for (var i = 0; i < markerList.length; i++) {
                      				markerList[i].setPosition({
-                     					lat: var1_obj.entity[i].vehicle.position.latitude,
-                     					lng: var1_obj.entity[i].vehicle.position.longitude
+                     					lat: var1_obj.entity[i].vehicle.position.latitude,lng: var1_obj.entity[i].vehicle.position.longitude
                      				});
                      			}
                      		}
@@ -196,7 +205,7 @@
                      
                      	var busNewIcon = new H.map.Icon(svgNewMarkup.replace('${FILL}', 'blue').replace('${STROKE}', 'red'));
                      	for (var element = 0; element < markerBusNum.length; element++) {
-                     		if (markerBusNum[element] == busChosen) {
+                     		if (parseInt(markerBusNum[element]) == busChosen) {
                      			markerList[element].setIcon(busNewIcon);
                      			markerList[element].setZIndex(5);
                      		}
@@ -241,13 +250,11 @@
                         	fclose($file);
                         	echo $result;
                         }?> ';
-                     console.log(received);
                      var stops = received.split("?");
                      var points = [];
                      for (var i = 0; i < stops.length - 1; i++) {
                      	var lati = parseFloat(stops[i].split("*")[0]);
                      	var lngi = parseFloat(stops[i].split("*")[1]);
-                     	console.log(lati + " " + lngi);
                      	var stopMarker = new H.map.Marker({
                      		lat: lati,
                      		lng: lngi
@@ -255,9 +262,7 @@
                      	map.addObject(stopMarker);
                      
                      	points.push(stops[i].split("*")[0] + ',' + stops[i].split("*")[1]);
-                     }
-                     
-                     
+                     }   
                      function drawLine(point0, point1) {
                      	var routingParameters = {
                      		'mode': 'fastest;car',
@@ -320,95 +325,14 @@
                      }
                                           /*
                                           for(var i =0; i<points.length-1; i++){
-                                           console.log("fuckkkk");
                                           drawLine(points[i],points[i+1]);
                                           }
-                                          */
-                                          
-                                       
+                                          */                       
                   </script>
                </div>
             </div>
          </div>
       </section>
-      <!-- section profile end -->
-      <!-- section testimonial start -->
-      <!-- section contact start -->
-      <section id="section-contact" class="section-padding">
-         <div class="container">
-            <div class="row">
-               <div class="col-md-12">
-                  <h2 class="heading-title">CONTACT US</h2>
-               </div>
-            </div>
-            <div class="row">
-               <div class="col-md-6 col-sm-6 wow fadeInRight">
-                  <div class="contact-form">
-                     <form class="contact-box" method="post" name = "contact">
-                        <div class="form-group">
-                           <label>Name*</label>
-                           <input type="text" class="form-control" id="name" name="name">
-                        </div>
-                        <div class="form-group">
-                           <label>Email address*</label>
-                           <input type="text" class="form-control" id="email" name="email">
-                        </div>
-                        <div class="form-group">
-                           <label>Message*</label>
-                           <input type="text" class="form-control" id="message" name="message">
-                        </div>
-                        <div class="row">
-                           <div class="col-md-12">
-                     <form>
-                     <input class="btn btn-default" onclick="Contact()" value="SUBMIT" id = "contact">
-                     </form>
-                     </div>
-                     </div>				            			
-                     </form>	
-                     <script>
-                        function sleep(milliseconds) {
-                        	var start = new Date().getTime();
-                        	for (var i = 0; i < 1e7; i++) {
-                        		if ((new Date().getTime() - start) > milliseconds){
-                        break;
-                        }
-                        	}
-                        }
-                        function Contact() {
-                           	var name = document.forms["contact"]["name"].value;
-                           	var email = document.forms["contact"]["email"].value;
-                           	var message = document.forms["contact"]["message"].value;
-                           	var dataString = 'name1=' + name + '&email1=' + email + '&message1=' + message;
-                        	if (name == '' || email == '' || message == '') {
-                        	alert("Please Fill All Fields");
-                        	} 
-                        else {
-                        window.location.href = "Contact.php?w1=\"" + name + "\"&w2=\"" + email + "\"&w3=\"" + message + "\"";
-                        	}
-                        }
-                     </script>            			
-                  </div>
-               </div>
-               <div class="col-md-6 col-sm-6 wow fadeInLeft">
-                  <div class="contact-left">
-                     <p> Got questions or opportunities for us? <br/>Just eave your comments below </p>
-                     <div class="location">
-                        <p>Credits:</p>
-                        <p><i>Kejia Fan</i></p>
-                        <p><i>Yao Yao</i></p>
-                        <p><i>York Li</i></p>
-                        <p><i>Yuxuan Liu</i></p>
-                     </div>
-                     <ul>
-                        <li><span>Email :</span> <a>liu686@wisc.edu</a></li>
-                        <li><span>Phone :</span> <a>608-622-5867</a></li>
-                     </ul>
-                  </div>
-               </div>
-            </div>
-         </div>
-      </section>
-      <!-- section contact end -->
       <footer id="section-footer">
          <div class="container">
             <div class="row">
