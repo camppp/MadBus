@@ -16,25 +16,16 @@
       <link rel="stylesheet" href="css/style.css">
    </head>
    <body data-spy="scroll" data-target=".main-nav">
-      <div>
-         <a href= "#section-story" class = "navbar-brand" style><i>Don't forget to thank the bus driver </i>😁</a>
-         <div class="collapse navbar-collapse navigation" id="bs-example-navbar-collapse-1" role="navigation">
-            <ul class="nav navbar-nav navbar-right">
-               <li><a href="https://github.com/camppp/MadBus">Contact Us</a></li>
-            </ul>
-         </div>
-      </div>
-      </section>
-      <!-- section overview end -->
-      <!-- section profile start -->
-      </br>
+      <a href= "#section-story" class = "navbar-brand" style><i>Don't forget to thank the bus driver </i>😁</a>
+      <div class="container"></br></br></div>
       <section id="section-story" class="section-padding">
          <div class="container">
          <div class="row">
             <div class="col-md-12 col-sm-12 pull-left" style="text-align: center; margin-top:5px">
-               <div>
+               <div class="container">
                   <form action="" method="post">
                      Find Route: <input name="route" type="text" style = "color: black;"/>
+			<div class="container"></br></div>
                      <input name="submit" type="submit" value="Submit" style = "color: black;"/>
                   </form>
                   </br>
@@ -83,11 +74,6 @@
                      	console.log(y);
                      }
                      var ss = "";
-                     var routes = [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16,
-                     	17, 18, 19, 20, 21, 22, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35,
-                     	36, 37, 38, 39, 40, 44, 47, 48, 49, 50, 51, 52, 55, 56, 57, 58, 59,
-                     	63, 67, 68, 70, 71, 72, 73, 75, 78, 80, 81, 82, 84
-                     ];
                      
                      var busChosen = "<?php 
                         if (isset($_POST['route']))
@@ -127,47 +113,46 @@
                      
                      var var1_obj;
                      function update() {
-                     	
                      	foo(myCallback); 
                      	if(ss.length != 0){
                      	var1_obj = JSON.parse(ss);     	
                      	if (markerList.length == 0) {
-                     			for (var i = 0; i < var1_obj.entity.length; i++) {
-                     				var lati = var1_obj.entity[i].vehicle.position.latitude;
-                     				var lngi = var1_obj.entity[i].vehicle.position.longitude;
-                     				var routesIndex = parseInt(var1_obj.entity[i].vehicle.trip.route_id);
-                     				var lines = '<?php                         
-                        $result = "";
-                        	$file = fopen("route.csv", "r");
-                        $line = "";
-                        $count = 0;
-                        while (!feof($file)) {
-                            		$line = fgetcsv($file);
-                            		if($count!=0){
-                               $route = $line[1];
-                        $label = $line[2];
-                             $result = $result . "*" . $route ."," . $label;
-                             }
-                             $count = $count+1;
-                        }
-                        	fclose($file);
-                        echo $result;
-                        ?>';
+                     			         var lines = '<?php                         
+                        				$result = "";
+                        				$file = fopen("route.csv", "r");
+                        				$line = "";
+                        				$count = 0;
+                        				while (!feof($file)) {
+                        			    		$line = fgetcsv($file);
+                            					if($count!=0){
+                               						$route = $line[1];
+                      							$label = $line[2];
+                            						$result = $result . "*" . $route ."," . $label;
+                             					}
+                             						$count = $count+1;
+                        				}
+                        				fclose($file);
+                       					echo $result;
+                        			?>';
                      				var split_routes = lines.split("*");
                      				for(var i = 1; i < split_routes.length; i++){
                      					split_routes[i] = split_routes[i].split(",");
                      				}
+                     			for (var i = 0; i < var1_obj.entity.length; i++) {
+                     				var lati = var1_obj.entity[i].vehicle.position.latitude;
+                     				var lngi = var1_obj.entity[i].vehicle.position.longitude;
+                     				var routesIndex = parseInt(var1_obj.entity[i].vehicle.trip.route_id);
                      				var route = 0;
-                     				for(var i = 1; i < split_routes.length; i++){
-                     					if(routesIndex == split_routes[i][0]){
-                     					route = split_routes[i][1];
+                     				for(var j = 1; j < split_routes.length; j++){
+                     					if(routesIndex == split_routes[j][0]){
+                     					route = split_routes[j][1];
                      					}
                      				}
                      				var svgMarkup = '<svg  width="24" height="24" xmlns="http://www.w3.org/2000/svg">' +
                      					'<rect stroke="black" fill="${FILL}" x="1" y="1" width="22" height="22" />' +
                      					'<text x="12" y="18" font-size="12pt" font-family="Arial" font-weight="bold" ' +
                      					'text-anchor="middle" fill="${STROKE}" >' + route + '</text></svg>';
-                     
+                     				
                      				var busIcon = new H.map.Icon(
                      						svgMarkup.replace('${FILL}', 'white').replace('${STROKE}', 'red')),
                      					busMarker = new H.map.Marker({
@@ -176,7 +161,7 @@
                      					}, {
                      						icon: busIcon
                      					});
-                     
+                     				
                      				markerList.push(busMarker);
                      				markerBusNum.push(route);
                      				length = markerBusNum.length;
