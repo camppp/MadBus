@@ -167,18 +167,16 @@
                      				length = markerBusNum.length;
                      				
                      				map.addObject(busMarker);
-                     				currPos = new H.map.Marker({
-                     					lat: x,
-                     					lng: y
-                     				});
-                     				map.addObject(currPos);
+
                      				var text = 'Latitude: ${var1_obj.entity[i].vehicle.position.latitude}Id: ${var1_obj.entity[i].id}Alert: ${var1_obj.entity[i].alert}';
                      			}
                      		} else {
                      			for (var i = 0; i < markerList.length; i++) {
+                     			if(typeof(var1_obj.entity[i]) != "undefined"){
                      				markerList[i].setPosition({
                      					lat: var1_obj.entity[i].vehicle.position.latitude,lng: var1_obj.entity[i].vehicle.position.longitude
                      				});
+                     			}
                      			}
                      		}
                      	var svgNewMarkup = '<svg  width="24" height="24" xmlns="http://www.w3.org/2000/svg">' +
@@ -235,6 +233,7 @@
                         }?> ';
                      var stops = received.split("?");
                      var points = [];
+                     if(busChosen !== " "){
                      for (var i = 0; i < stops.length - 1; i++) {
                      	var lati = parseFloat(stops[i].split("*")[0]);
                      	var lngi = parseFloat(stops[i].split("*")[1]);
@@ -246,71 +245,7 @@
                      
                      	points.push(stops[i].split("*")[0] + ',' + stops[i].split("*")[1]);
                      }   
-                     function drawLine(point0, point1) {
-                     	var routingParameters = {
-                     		'mode': 'fastest;car',
-                     		'waypoint0': 'geo!' + point0,
-                     		'waypoint1': 'geo!' + point1,
-                     		'representation': 'display'
-                     	};
-                     
-                     	var onResult = function (result) {
-                     		var route,
-                     			routeShape,
-                     			startPoint,
-                     			endPoint,
-                     			linestring;
-                     		if (result.response.route) {
-                     			route = result.response.route[0];
-                     			routeShape = route.shape;
-                     
-                     			linestring = new H.geo.LineString();
-                     
-                     			routeShape.forEach(function (point) {
-                     				var parts = point.split(',');
-                     				linestring.pushLatLngAlt(parts[0], parts[1]);
-                     			});
-                     
-                     			startPoint = route.waypoint[0].mappedPosition;
-                     			endPoint = route.waypoint[1].mappedPosition;
-                     
-                     			var routeLine = new H.map.Polyline(linestring, {
-                     				style: {
-                     					strokeColor: 'blue',
-                     					lineWidth: 10
-                     				}
-                     			});
-                     
-                     			var startMarker = new H.map.Marker({
-                     				lat: startPoint.latitude,
-                     				lng: startPoint.longitude
-                     			});
-                     
-                     			var endMarker = new H.map.Marker({
-                     				lat: endPoint.latitude,
-                     				lng: endPoint.longitude
-                     			});
-                     
-                     			map.addObjects([routeLine, startMarker, endMarker]);
-                     			map.addObjects([routeLine, startMarker, endMarker]);
-                     
-                     			map.setViewBounds(routeLine.getBounds());
-                     		}
-                     	};
-                     
-                     	var router = platform.getRoutingService();
-                     
-                     	router.calculateRoute(routingParameters, onResult,
-                     		function (error) {
-                     			alert(error.message);
-                     		});
-                     
                      }
-                                          /*
-                                          for(var i =0; i<points.length-1; i++){
-                                          drawLine(points[i],points[i+1]);
-                                          }
-                                          */                       
                   </script>
                </div>
             </div>
