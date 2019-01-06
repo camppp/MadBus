@@ -49,9 +49,8 @@ We learnt how to use Javascript, php, Here API and raw data from other sources t
 
 # Built With:
     Here API
-    json
-    php
-    javascript
+    PHP
+    Javascript
 # Try it out:
     http://lyuxuan.com/MadBus/index.php
     
