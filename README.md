@@ -53,8 +53,7 @@ We learnt how to use Javascript, php, Here API and raw data from other sources t
     php
     javascript
 # Try it out:
-    lyuxuan.com/test.php
-    
+    http://lyuxuan.com/MadBus/index.php
     
 MadHacks 2018
 Created by
