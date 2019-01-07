@@ -9,7 +9,7 @@
       <script type="text/javascript" src="https://js.api.here.com/v3/3.0/mapsjs-ui.js"></script>
       <script type="text/javascript" src="https://js.api.here.com/v3/3.0/mapsjs-mapevents.js"></script>
       <link rel="stylesheet" type="text/css" href="http://js.api.here.com/v3/3.0/mapsjs-ui.css" />
-      <title>MadBus - real time bus checker</title>
+      <title>MadBus - real time bus tracker</title>
       <script src="jquery.js"></script>
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <link href="assets/css/bootstrap.min.css" rel="stylesheet">
@@ -17,7 +17,7 @@
       <link rel="stylesheet" href="css/style.css">
    </head>
    <body data-spy="scroll" data-target=".main-nav">
-      <a href= "#section-story" class = "navbar-brand" style><i>Don't forget to thank the bus driver </i>😁</a>
+      <a href= "#section-story" class = "navbar-brand" style><i>Remember to thank the bus driver </i>😁</a>
       <div class="container"></br></br></div>
       <section id="section-story" class="section-padding">
          <div class="container">
@@ -33,6 +33,25 @@
                </div>
                <div id="map" style="width: 100%; height: 400px; background: grey" />
                   <script  type="text/javascript" charset="UTF-8" >
+			function getLocation() {
+			 if (navigator.geolocation) {
+			  	navigator.geolocation.getCurrentPosition(showPosition);
+			 } else { 
+				x.innerHTML = "Geolocation is not supported by this browser.";
+			 }
+			}
+	
+			function showPosition(position) {
+				console.log(position.coords.latitude);
+				console.log(position.coords.longitude);
+			}
+			getLocation();
+			var busChosen = "<?php 
+	                if (isset($_POST['route']))
+	                {
+	                echo $_POST["route"];
+	                }?> ";
+		     foo(callBack, 2);
                      foo(callBack, 3);
                      var longname = [8216,8217,8218,8219,8220,8221,8222,8223,8224,8225,8226,8227,8228,8229,8230,8231,
                      8232,8233,8234,8235,8236,8237,8238,8239,8240,8241,8242,8243,8244,8245,8246,8247,8248,8249,8250,8251,8252,8253,8254,8255,
@@ -65,47 +84,66 @@
                      });
                      map.setZoom(14);
                      var markerList = [];
+                     var received = "";
                      var unparsedJSON = "";
                      var tripJSON = "";
-                     var busChosen = "<?php 
-                        if (isset($_POST['route']))
-                        {
-                        echo $_POST["route"];
-                        }?> ";
- 
-                     function foo(callback, flag) {
-                     if(flag == 1){
-                     	$.ajax({
-                     	url: "proxy.php",
-                     	type: "GET",
-                     	success:function(e){
-                         	callBack(e, flag);
-                     	}
-                     	,
-                     	error:function(request, status, error) {console.log("AJAX error!");}
-                     	});
-                     }
-                     else{
-                     	$.ajax({
-                     	url: "trip.php",
-                     	type: "GET",
-                     	success:function(e){
-                         	callBack(e, flag);
-	                }
-                     	,
-                    	error:function(request, status, error) {console.log("AJAX error!");}
-                     	});
-                     }
+	             var stopName = "";
+                     function foo(callback, flag, data){
+	                     var chosen = "chosen=" + busChosen;
+	                     if(flag == 1){
+	                     	$.ajax({
+	                     	url: "proxy.php",
+	                     	type: "GET",
+	                     	success:function(e){callBack(e, flag);},
+	                     	error:function(request, status, error) {console.log("AJAX error!");}
+	                     	});
+	                     }
+	                     else if(flag == 2){
+	                     	$.ajax({
+	                     	url: "stops.php",
+	                     	type: "GET",
+	                     	data: chosen,
+	                     	success:function(e){callBack(e, flag);},
+	                    	error:function(request, status, error) {console.log("AJAX error!");}
+	                     	});
+	                     }
+	                     else if(flag == 3){
+	                     	$.ajax({
+	                     	url: "trip.php",
+	                     	type: "GET",
+	                     	success:function(e){callBack(e, flag); },
+	                    	error:function(request, status, error) {console.log("AJAX error!");}
+	                     	});
+	                     }
+	                     else if(flag == 4){
+	                     	data = "id=" + data;
+	                     	$.ajax({
+	                     	url: "stopName.php",
+	                     	async: false,
+	                     	type: "GET",
+	                     	data: data,
+	                     	success:function(e){callBack(e, flag);},
+	                    	error:function(request, status, error) {console.log("AJAX error!");}
+	                     	});
+	                     }
                      }
                  
                      function callBack(result, flag) {
                      	if(flag == 1){
                      		unparsedJSON = result;
                      	}
-                     	else {
+                     	else if (flag == 2){
+                     		received = result;
+                     		showStops();
+                     	}
+                     	else if (flag == 3){
                      		tripJSON = result;
                      	}
+                     	else if (flag == 4){
+                     		stopName = result;
+                     	}
                      }
+                     
                      var text = 'Latitude: ${parsedJSON.entity[i].vehicle.position.latitude}Id: ${parsedJSON.entity[i].id}Alert: ${parsedJSON.entity[i].alert}';
                      var svgNewMarkup = '<svg  width="24" height="24" xmlns="http://www.w3.org/2000/svg">' +
                      '<rect stroke="black" fill="${FILL}" x="1" y="1" width="35" height="35" />' +
@@ -113,6 +151,8 @@
                      'text-anchor="middle" fill="${STROKE}" >' + busChosen + '</text></svg>';  	
                      var busNewIcon = new H.map.Icon(svgNewMarkup.replace('${FILL}', 'blue').replace('${STROKE}', 'red'));
                      var parsedJSON;
+                     update();
+                     var t = setInterval(update, 1000);
                      function update() {
                      	foo(callBack, 1); 
                      	if(unparsedJSON.length != 0){
@@ -156,47 +196,9 @@
                      				}
                      			}
                      		}
-
                      	}
                      }
-                     var t = setInterval(update, 1000);
-                     var received = '<?php 
-                        $result = "";
-                        if (isset($_POST['route']))
-                        {
-                        $route = $_POST["route"];
-                        }
-                        $problem = FALSE;
-                        if (empty($route)) {
-                        	$problem = True;
-                        }
-                        if ($problem) {
-                        	echo "Invalid Arguments";
-                        } else {
-                        	$file = fopen("stops.csv", "r");
-                        	$line = "";
-                        	while (!feof($file)) {
-                        		$line = fgetcsv($file);
-                        		if (strpos($line[19], ',') !== false) {
-                        			$pieces = explode(",", $line[19]);
-                        			for ($x = 0; $x < count($pieces); $x++) {
-                        				if ($pieces[$x] == $route) {
-                        					$result = $result.$line[7].
-                        					"*".$line[8]."*".$line[3].
-                        					"?";
-                        				}
-                        			}
-                        		} else {
-                        			if ($line[19] == $route) {
-                        				$result = $result.$line[7].
-                        				"*".$line[8]."*".$line[3].
-                        				"?";
-                        			}
-                        		}
-                        	}
-                        	fclose($file);
-                        	echo $result;
-                        }?> ';
+		 function showStops(){
                      var stops = received.split("?");
                      if(busChosen !== ""){
                      for (var i = 0; i < stops.length - 1; i++) {
@@ -208,28 +210,39 @@
                      	});
                      	stopMarker.setData(stops[i].split("*")[2]);
                      	stopMarker.addEventListener('tap', function (evt) {
-                     		var content = "";
+                     		foo(callBack, 4, evt.target.getData());
+                     		var content = stopName + "</br>";
+                     		var stopId = 0;
                      		parsedtrip = JSON.parse(tripJSON);
-                     		for (var i = 0; i < parsedtrip.entity.length; i++) {
-                     			for (var j = 0; j < parsedtrip.entity[i].trip_update.stop_time_update.length - 1; j++) {
-                     				//console.log(parsedtrip.entity[i].trip_update.stop_time_update[j].stop_id);
+                     		for (var j = 0; j < parsedtrip.entity.length; j++) {
+                     			for (var k = 0; k < parsedtrip.entity[j].trip_update.stop_time_update.length; k++) {
+                     				//console.log(parsedtrip.entity[j].trip_update.stop_time_update[k]);
                      				//console.log(evt.target.getData());
-                     				var stopId = parsedtrip.entity[i].trip_update.stop_time_update[j].stop_id;
+                     				stopId = parsedtrip.entity[j].trip_update.stop_time_update[k].stop_id;
+                     				//console.log(parsedtrip.entity[0].trip_update.stop_time_update[5].stop_id);
 						if(stopId == evt.target.getData()){
-							var date = new Date(parsedtrip.entity[i].trip_update.stop_time_update[j].departure.time*1000);
+							if(parsedtrip.entity[j].trip_update.stop_time_update[k].departure == null){
+								var date = new Date(parsedtrip.entity[j].trip_update.stop_time_update[k].arrival.time*1000);
+							}
+							else {
+								var date = new Date(parsedtrip.entity[j].trip_update.stop_time_update[k].departure.time*1000);
+							}
 							var hours = date.getHours();
 							var minutes = "0" + date.getMinutes();
 							var seconds = "0" + date.getSeconds();
-                     					var routecurrent = shortname[parsedtrip.entity[i].trip_update.trip.route_id - 8216];
+                     					var routecurrent = shortname[parsedtrip.entity[j].trip_update.trip.route_id - 8216];
 							var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+							
                      					content = content + "#" + routecurrent +  " ETA: " + formattedTime + "</br>";
                      					//console.log(routecurrent);
 							//console.log(formattedTime);
 						}
                      			}
                      		}
-                     		if(content == ""){
-                     			content = "<h4>Time estiname not available</h4>";
+                     		//console.log(formattedTime);
+                     		if(typeof(formattedTime) == "undefined"){
+                     			content += "<h4>Time estiname not available</h4>";
+                     			console.log(evt.target.getData());
                      		}
     				var bubble =  new H.ui.InfoBubble(evt.target.getPosition(), {
       					content: content
@@ -239,6 +252,7 @@
                      	map.addObject(stopMarker);
                      }   
                      }
+                   } 
                   </script>
                </div>
             </div>
@@ -258,7 +272,7 @@
             </div>
          </div>
       </footer>
-      <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+      <!-- jQuery (necessary for Bootstrap JavaScript plugins) -->
       <script src="js/jquery.js"></script>
       <!-- Include all compiled plugins (below), or include individual files as needed -->
       <!-- initialize jQuery Library -->
@@ -299,4 +313,3 @@
       </script>
    </body>
 </html>
-
