@@ -4,8 +4,7 @@ real-time bus tracker
 The most direct way to see real-time bus locations and their stops with location-based information 
 
 *********IMPORTANT**********
-Before trying our project,**PLEASE** turn on an extension (i.e. Allow-Control-Allow-Origin)on Chrome to solve cross-origin resources share problem.
-Site: lyuxuan.com/test.php
+Site: lyuxuan.com/MadBus/index.php
 *********IMPORTANT**********
 
 #Inspiration
