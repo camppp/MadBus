@@ -1,5 +1,5 @@
 # MadBus
-lyuxuan.com/test.php
+lyuxuan.com/MadBus/index.php
 real-time bus tracker
 The most direct way to see real-time bus locations and their stops with location-based information 
 
