@@ -14,7 +14,7 @@ the same name. :)
 Site: lyuxuan.com/MadBus/index.php
 *********IMPORTANT**********
 
-#Inspiration
+# Inspiration
 
 According to our own experiences with Google Map when searching for bus lines, we sometimes suffer from the complex operations and not seeing the exact location of the bus visually on the map (Google Map only supports text-based information about the bus schedule and only one bus at a time if you want to track). So we implement an improved version of Map with the real-time bus lines.
 
