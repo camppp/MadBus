@@ -22,8 +22,8 @@
     <title>MadBus - real time bus tracker</title>
 </head>
 <body data-spy="scroll" data-target=".main-nav">
-<a href= "#section-story" class = "navbar-brand" style = "white-space: normal;"><i>Remember to thank the bus driver </i>😁</a>
-<div class="container"></br></br></div>
+<a href= "#section-story" class = "navbar-brand" style = "white-space: normal;"><i>Remember to thank the bus driver </i>ðŸ˜</a>
+<div class="container"></div>
 <section id="section-story" class="section-padding">
     <div class="row">
         <div class="col-md-12 col-sm-12" style="text-align: center; margin-top:5px; padding-right: 0px;padding-left: 0px;">
@@ -36,13 +36,12 @@
                         <div class="form-group mx-sm-3 mb-2">
                             <input name="route" class="form-control" value="<?php echo isset($_POST['route']) ? $_POST['route'] : NULL; ?>" id="route" placeholder="Route">
                         </div>
-                        <button type="submit" name="submit" type="submit" value="Submit" style = "color: white;" class="btn btn-primary mb-2">Submit</button>
+                        <button type="submit" name="submit" type="submit" value="Submit" style = "color: white; font-weight: bold;" class="btn btn-primary mb-2">SUBMIT</button>
+                        <input type="button" value="Closest Stops" onclick="getClosest();" style = "color: white;" class="btn btn-primary mb-2">
                     </div>
                 </form>
-                </br>
-                </br>
             </div>
-            <div id="map" style="width: 100%; height: 600px; background: grey" />
+            <div id="map" style="width: 100%; height: 600px; background: grey"></div>
             <script type="text/javascript" src="js/map.js" charset="UTF-8" ></script>
         </div>
     </div>
