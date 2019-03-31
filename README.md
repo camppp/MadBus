@@ -4,6 +4,7 @@ real-time bus tracker
 The most direct way to see real-time bus locations and their stops with location-based information 
 
 *********IMPORTANT**********
+
 Yes we have noticed that there's another Madbus on Github.
 Clarification: We did not use any part of the code from that project
 or in any way plagarize the project. We built this application 
