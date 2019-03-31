@@ -24,6 +24,9 @@ According to our own experiences with Google Map when searching for bus lines, w
     The buses are moving on real-time with positions updated around every 30s.
     It can show all stations of the chosen bus line upon request.
     It can highlight all the buses with chosen route number upon request.
+    It displays route KML object for selected routes
+    It is able to project user location on the map
+    It is able to show the closest stops from user location within 200 meters
     lyuxuan.com/test.php
 
 # How we built it
