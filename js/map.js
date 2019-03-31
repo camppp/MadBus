@@ -1,7 +1,8 @@
-/* 
+/*
 code for GPS location display, However the development team is poor and cannot 
 afford either an SSL subscription or usage of Google Geolocation API
-
+*/
+/*
 function getLocation() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition);
@@ -16,24 +17,35 @@ function showPosition(position) {
 }
 getLocation();
 */
-var busChosen = document.getElementById("route").value;
+
+var closest = [];
+var busChosen = parseInt(document.getElementById("route").value.toString(), 10);
+
+if(busChosen <=0 || busChosen > 84) {
+    busChosen = "";
+}
 ajax(callBack, 2);
 ajax(callBack, 3);
 // first fetch the JSON stops file from Madison open data and then show the stops
-
+const longname = "82988299830083018302830383048305830683078308830983108311831283138314831583168317831883198320832183228323832483258326832783288329833083318332833383348335833683378338833983408341834283438344834583468347834883498350835183528353835483558356835783588359";
 const shortname = [1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 
     19, 20, 21, 22, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 
     40, 44, 47, 48, 49, 50, 51, 52, 55, 56, 57, 58, 59, 63, 67, 68, 70, 71, 72, 
     73, 75, 78, 80, 81, 82, 84];
+var hashmap = new Map();
+for(var i = 0; i < longname.length; i++) {
+    var sliced = longname.substring(4*i, 4*i + 4);
+    hashmap.set(sliced, shortname[i]);
+}
 // All the possible short_names for Madison Transit
-var platform = new H.service.Platform({
+const platform = new H.service.Platform({
     app_id: "PDJFmvyexESSMzktjZle",
     app_code: "TTRVK2Ip52AywX5o6bcn8w",
     useHTTPS: true
 });
 // App ID authentication
-var pixelRatio = window.devicePixelRatio || 1;
-var defaultLayers = platform.createDefaultLayers({
+const pixelRatio = window.devicePixelRatio || 1;
+const defaultLayers = platform.createDefaultLayers({
     tileSize: (pixelRatio === 1) 
     ? 256 : 512,
     ppi: (pixelRatio === 1) 
@@ -44,8 +56,23 @@ var map = new H.Map(document.getElementById("map"),
         pixelRatio: pixelRatio
     });
 // initialize the map
-var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
-var ui = H.ui.UI.createDefault(map, defaultLayers);
+var svgMarkup = '<svg  width="48" height="48" xmlns="http://www.w3.org/2000/svg">' +
+    '<rect stroke="black" fill="${FILL}" x="1" y="1" width="44" height="44" />' +
+    '<text x="23" y="35" font-size="24pt" font-family="Arial" font-weight="bold" ' +
+    'text-anchor="middle" fill="${STROKE}" >' + route + '</text></svg>';
+var busIcon = new H.map.Icon(svgMarkup.replace("${FILL}", "white").replace("${STROKE}", "red"));
+var svgMarkup2 = '<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg">' +
+	'<rect stroke="black" fill="${FILL}" x="1" y="1" width="35" height="35" />' + 
+	'<text x="17" y="18" font-size="12pt" font-family="arial" font-weight="bold" ' +
+	' text-anchor="middle" fill="${STROKE}" >' + ' You' + '</text></svg>';
+var personIcon = new H.map.Icon(svgMarkup2.replace("${FILL}", "red").replace("${STROKE}", "white"));
+
+var location2 = new H.map.Marker({lat: 43.071302 , lng: -89.407001}, {icon: personIcon});
+location2.setZIndex(5);
+location2.setData("USER");
+map.addObject(location2);
+const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+const ui = H.ui.UI.createDefault(map, defaultLayers);
 map.setCenter({
     lat: 43.0750,
     lng: -89.4100
@@ -60,10 +87,11 @@ var tripJSON = "";
 // JSON stops reveived
 var stopName = "";
 // the name of the selected stop
-const svgNewMarkup = '<svg  width="24" height="24" xmlns="http://www.w3.org/2000/svg">' +
-'<rect stroke="black" fill="${FILL}" x="1" y="1" width="35" height="35" />' +
-'<text x="12" y="18" font-size="12pt" font-family="Arial" font-weight="bold" ' +
+const svgNewMarkup = '<svg  width="48" height="48" xmlns="http://www.w3.org/2000/svg">' +
+'<rect stroke="black" fill="${FILL}" x="1" y="1" width="45" height="45" />' +
+'<text x="23" y="35" font-size="24pt" font-family="Arial" font-weight="bold" ' +
 'text-anchor="middle" fill="${STROKE}" >' + busChosen + '</text></svg>';
+
 // the icon for selected buses
 var parsedJSON = "";
 update();
@@ -85,6 +113,7 @@ function displayKML(lineStrings) {
     for (var i = 0; i < lines.length; i++) {
         lines[i] = lines[i].substring(25, lines[i].length);
         var points = lines[i].split(" ");
+        
         lineString = new H.geo.LineString();
         for (var j = 0; j < points.length; j++) {
             var xy = points[j].split(",");
@@ -186,10 +215,69 @@ function callBack(result, flag) {
     } else if (flag == 4) {
         stopName = result;
     } else if (flag == 5) {
-        if (busChosen !== ""){
+        if (!isNaN(busChosen) ){
             displayKML(result);
         }
     }
+}
+var allStops = [];
+function getClosest() {
+    var svgMarkup3 = '<svg width="50" height="50" xmlns="http://www.w3.org/2000/svg">' +
+    '<circle stroke="black" fill="pink" cx="15" cy="15" r="1" />' +
+    '<text x="25" y="40" font-size="24pt" font-family="Arial" font-weight="bold" ' +
+    'text-anchor="middle" fill="${STROKE}" >' + '😂' + '</text>'
+     +'</svg>';
+
+	//console.log(svgMarkup3);
+	var iconx = new H.map.Icon(svgMarkup3);
+    if(closest.length !== 0){
+        console.log(closest);
+        return;
+    }
+    var min = Number.MAX_VALUE;
+    var minIndex = 0;
+    
+    for(var i = 0 ; i < allStops.length; i++){
+        var dist = distance(allStops[i].getPosition().lat, allStops[i].getPosition().lng,
+        location2.getPosition().lat, location2.getPosition().lng, 'K');
+        if(dist < 0.2){
+            closest.push(allStops[i]);
+        }
+        if(dist < min){
+            min = dist;
+            minIndex = i;
+        }
+    }
+    //console.log(closest);
+    if(closest.length === 0) {
+        closest.push(allStops[minIndex]);
+    }
+    for(var i = 0; i < closest.length; i++){
+	    closest[i].setIcon(iconx);
+	    closest[i].setZIndex(5);
+	}
+}
+
+function distance(lat1, lon1, lat2, lon2, unit) {
+	if ((lat1 == lat2) && (lon1 == lon2)) {
+		return 0;
+	}
+	else {
+		var radlat1 = Math.PI * lat1/180;
+		var radlat2 = Math.PI * lat2/180;
+		var theta = lon1-lon2;
+		var radtheta = Math.PI * theta/180;
+		var dist = Math.sin(radlat1) * Math.sin(radlat2) + Math.cos(radlat1) * Math.cos(radlat2) * Math.cos(radtheta);
+		if (dist > 1) {
+			dist = 1;
+		}
+		dist = Math.acos(dist);
+		dist = dist * 180/Math.PI;
+		dist = dist * 60 * 1.1515;
+		if (unit=="K") { dist = dist * 1.609344 }
+		if (unit=="N") { dist = dist * 0.8684 }
+		return dist;
+	}
 }
 
 /**
@@ -204,11 +292,11 @@ function update() {
                 const lati = parsedJSON.entity[i].vehicle.position.latitude;
                 const lngi = parsedJSON.entity[i].vehicle.position.longitude;
                 const route_id = parsedJSON.entity[i].vehicle.trip.route_id;
-                const route = shortname[route_id - 8216];
+                const route = hashmap.get(route_id);
                 // hard code for Madison bus special encoding
-                var svgMarkup = '<svg  width="24" height="24" xmlns="http://www.w3.org/2000/svg">' +
-                    '<rect stroke="black" fill="${FILL}" x="1" y="1" width="22" height="22" />' +
-                    '<text x="12" y="18" font-size="12pt" font-family="Arial" font-weight="bold" ' +
+                var svgMarkup = '<svg  width="48" height="48" xmlns="http://www.w3.org/2000/svg">' +
+                    '<rect stroke="black" fill="${FILL}" x="1" y="1" width="44" height="44" />' +
+                    '<text x="23" y="35" font-size="24pt" font-family="Arial" font-weight="bold" ' +
                     'text-anchor="middle" fill="${STROKE}" >' + route + '</text></svg>';
                 var busIcon = new H.map.Icon(svgMarkup.replace("${FILL}", "white").replace("${STROKE}", "red"));
                 var busMarker = new H.map.Marker({
@@ -224,7 +312,7 @@ function update() {
                 if (busChosen >= 1 && busChosen <= 84) {
                     for (var element = 0; element < markerList.length; element++) {
                         if (markerList[element].getData() == busChosen) {
-                            markerList[element].setIcon(new H.map.Icon(svgNewMarkup.replace("${FILL}", "blue").replace("${STROKE}", "red")));
+                            markerList[element].setIcon(new H.map.Icon(svgNewMarkup.replace("${FILL}", "blue").replace("${STROKE}", "white")));
                             markerList[element].setZIndex(5);
                         }
                         // make the selected buses look different
@@ -267,6 +355,7 @@ function showStops(received) {
             var content = stopName + "</br>";
             var stopId = 0;
             parsedtrip = JSON.parse(tripJSON);
+            var stop_times = [];
             for (var j = 0; j < parsedtrip.entity.length; j++) {
                 for (var k = 0; k < parsedtrip.entity[j].trip_update.stop_time_update.length; k++) {
                     stopId = parsedtrip.entity[j].trip_update.stop_time_update[k].stop_id;
@@ -281,26 +370,37 @@ function showStops(received) {
                         var hours = date.getHours();
                         var minutes = "0" + date.getMinutes();
                         var seconds = "0" + date.getSeconds();
-                        var routecurrent = shortname[parsedtrip.entity[j].trip_update.trip.route_id - 8216];
+                        var routecurrent = hashmap.get(parsedtrip.entity[j].trip_update.trip.route_id);
                         var formattedTime = hours + ":" + minutes.substr(-2) + ":" + seconds.substr(-2);
                         // convert from unix time stamp
-                        content = content + "#" + routecurrent + " ETA: " + formattedTime + "</br>";
+                        stop_times.push("#" + routecurrent + " ETA: " + formattedTime + "</br>");
                     }
                 }
             }
+            stop_times.sort(function(a,b){
+                if(a.substring(a.length - 13, a.length - 5) <= b.substring(b.length - 13, b.length - 5)) {
+                    return -1;
+                } else {
+                    return 1;
+                }
+            });
+            //console.log(stop_times);
+            for(var i = 0; i < stop_times.length; i++){
+                content = content + stop_times[i];
+                //console.log(stop_times[i]);
+            }
             if (typeof (formattedTime) == "undefined") {
                 content += "<h4>Time estimate not available</h4>";
-                console.log(evt.target.getData());
+                //console.log(evt.target.getData());
                 // invalid input handling, sometimes Madison Open data doesn't 
                 // provide estimated times for many stations (MANY), so
                 // this part will come in handy
             }
-            var bubble = new H.ui.InfoBubble(evt.target.getPosition(), {
-                content: content
-            });
+            var bubble = new H.ui.InfoBubble(evt.target.getPosition(), {content: content});
             ui.addBubble(bubble);
         }, false);
         map.addObject(stopMarker);
+        allStops.push(stopMarker);
     }
 }
 
