@@ -1,7 +1,7 @@
 <?php
 	$route = $_GET["route"];
 	$startIndex = 0;
-    $query = '<SimpleData name="route_short_name">'.$route.'</SimpleData>';
+    	$query = '<SimpleData name="route_short_name">'.$route.'</SimpleData>';
 	$file = fopen("assets/Metro_Transit_Bus_Routes.kml", "r");
 	$line = "";
 	$count = 0;
